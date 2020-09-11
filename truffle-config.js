@@ -1,4 +1,5 @@
 'use strict';
+require('dotenv').config();
 
 var HDWalletProvider = require("@truffle/hdwallet-provider")
 
@@ -27,12 +28,26 @@ module.exports = {
         process.env.HDWALLET_MNEMONIC,
         process.env.INFURA_PROVIDER_URL,
         0, // we start with address[0]
-        8 // notice that we unlock eight: which will be address[0] and address[1]
+        1 // notice that we unlock eight: which will be address[0] and address[1]
       ),
       skipDryRun: true,
       network_id: 4,
       gas: 6980000,
       gasPrice: 2.001 * 1000000000
+    },
+
+    ropsten: {
+      network_id: '3',
+      provider: () => new HDWalletProvider(
+        process.env.DEPLOYER_PRIVATE_KEY,
+        process.env.INFURA_API_KEY,
+        0,
+        1
+      ),
+      gasPrice: 10000000000, // 10 gwei
+      gas: 8000000,
+      from: process.env.DEPLOYER_ACCOUNT,
+      timeoutBlocks: 500000000000000,
     },
 
     mainnet: {
