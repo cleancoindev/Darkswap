@@ -55,8 +55,8 @@ contract('Governor', ([alice, minter, dev]) => {
         await time.advanceBlock();
         await this.gov.castVote('1', true, { from: dev });
         await expectRevert(this.gov.queue('1'), "GovernorAlpha::queue: proposal can only be queued if it is succeeded");
-        console.log("Advancing 17280 blocks. Will take a while...");
-        for (let i = 0; i < 17280; ++i) {
+        console.log("Advancing 10 blocks. Will take a while...");
+        for (let i = 0; i < 10; ++i) {
             await time.advanceBlock();
         }
         await this.gov.queue('1');
