@@ -1,6 +1,6 @@
 const { expectRevert, time } = require('@openzeppelin/test-helpers');
-const SakeToken = artifacts.require('SakeToken');
-const SakeMaster = artifacts.require('SakeMaster');
+const DarkToken = artifacts.require('DarkToken');
+const DarkMaster = artifacts.require('DarkMaster');
 const MockERC20 = artifacts.require('MockERC20');
 const UniswapV2Pair = artifacts.require('UniswapV2Pair');
 const UniswapV2Factory = artifacts.require('UniswapV2Factory');
@@ -10,15 +10,15 @@ contract('Migrator', ([alice, bob, dev, minter]) => {
     beforeEach(async () => {
         this.factory1 = await UniswapV2Factory.new(alice, { from: alice });
         this.factory2 = await UniswapV2Factory.new(alice, { from: alice });
-        this.sake = await SakeToken.new({ from: alice });
+        this.Dark = await DarkToken.new({ from: alice });
         this.weth = await MockERC20.new('WETH', 'WETH', '100000000', { from: minter });
         this.token = await MockERC20.new('TOKEN', 'TOKEN', '100000000', { from: minter });
         this.lp1 = await UniswapV2Pair.at((await this.factory1.createPair(this.weth.address, this.token.address)).logs[0].args.pair);
         this.lp2 = await UniswapV2Pair.at((await this.factory2.createPair(this.weth.address, this.token.address)).logs[0].args.pair);
-        this.chef = await SakeMaster.new(this.sake.address, dev, '1000', '0', { from: alice });
-        this.migrator = await Migrator.new(this.chef.address, this.factory1.address, this.factory2.address, '0');
-        await this.sake.transferOwnership(this.chef.address, { from: alice });
-        await this.chef.add('100', this.lp1.address, true, { from: alice });
+        this.darklord = await DarkMaster.new(this.dark.address, dev, '1000', '0', { from: alice });
+        this.migrator = await Migrator.new(this.darklord.address, this.factory1.address, this.factory2.address, '0');
+        await this.dark.transferOwnership(this.darklord.address, { from: alice });
+        await this.darklord.add('100', this.lp1.address, true, { from: alice });
     });
 
     it('should do the migration successfully', async () => {
@@ -30,17 +30,17 @@ contract('Migrator', ([alice, bob, dev, minter]) => {
         await this.token.transfer(this.lp1.address, '100000', { from: minter });
         await this.weth.transfer(this.lp1.address, '5000', { from: minter });
         await this.lp1.sync();
-        await this.lp1.approve(this.chef.address, '100000000000', { from: minter });
-        await this.chef.deposit('0', '2000000', { from: minter });
-        assert.equal((await this.lp1.balanceOf(this.chef.address)).valueOf(), '2000000');
-        await expectRevert(this.chef.migrate(0), 'migrate: no migrator');
-        await this.chef.setMigrator(this.migrator.address, { from: alice });
-        await expectRevert(this.chef.migrate(0), 'migrate: bad');
+        await this.lp1.approve(this.darklord.address, '100000000000', { from: minter });
+        await this.darklord.deposit('0', '2000000', { from: minter });
+        assert.equal((await this.lp1.balanceOf(this.darklord.address)).valueOf(), '2000000');
+        await expectRevert(this.darklord.migrate(0), 'migrate: no migrator');
+        await this.darklord.setMigrator(this.migrator.address, { from: alice });
+        await expectRevert(this.darklord.migrate(0), 'migrate: bad');
         await this.factory2.setMigrator(this.migrator.address, { from: alice });
-        await this.chef.migrate(0);
-        assert.equal((await this.lp1.balanceOf(this.chef.address)).valueOf(), '0');
-        assert.equal((await this.lp2.balanceOf(this.chef.address)).valueOf(), '2000000');
-        await this.chef.withdraw('0', '2000000', { from: minter });
+        await this.darklord.migrate(0);
+        assert.equal((await this.lp1.balanceOf(this.darklord.address)).valueOf(), '0');
+        assert.equal((await this.lp2.balanceOf(this.darklord.address)).valueOf(), '2000000');
+        await this.darklord.withdraw('0', '2000000', { from: minter });
         await this.lp2.transfer(this.lp2.address, '2000000', { from: minter });
         await this.lp2.burn(bob);
         assert.equal((await this.token.balanceOf(bob)).valueOf(), '9033718');
