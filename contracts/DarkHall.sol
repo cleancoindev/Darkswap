@@ -14,7 +14,7 @@ contract DarkHall is ERC20("DarkHall", "xDARK"){
         dark = _dark;
     }
 
-    // Enter the bar. Pay some DARKs. Earn some shares.
+    // Enter the Hall. Pay some DARKs. Earn some shares.
     function enter(uint256 _amount) public {
         uint256 totalDark = dark.balanceOf(address(this));
         uint256 totalShares = totalSupply();
@@ -27,7 +27,7 @@ contract DarkHall is ERC20("DarkHall", "xDARK"){
         dark.transferFrom(msg.sender, address(this), _amount);
     }
 
-    // Leave the bar. Claim back your DARKs.
+    // Leave the Hall. Claim back your DARKs.
     function leave(uint256 _share) public {
         uint256 totalShares = totalSupply();
         uint256 what = _share.mul(dark.balanceOf(address(this))).div(totalShares);
