@@ -234,7 +234,7 @@ contract DarkMaster is Ownable {
             return;
         }
         uint256 darkReward = multiplier.mul(darkPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
-        dark.mint(devaddr, darkReward.div(1000000));
+        /* dark.mint(devaddr, darkReward.div(1000000)); */
         dark.mint(address(this), darkReward);
         pool.accDarkPerShare = pool.accDarkPerShare.add(darkReward.mul(1e12).div(lpSupply));
         pool.lastRewardBlock = block.number;
