@@ -5,29 +5,29 @@ import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/EnumerableSet.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./SakeToken.sol";
+import "./DarkToken.sol";
 
 interface IMigratorChef {
-    // Perform LP token migration from legacy UniswapV2 to SakeSwap.
+    // Perform LP token migration from legacy UniswapV2 to DarkSwap.
     // Take the current LP token address and return the new LP token address.
     // Migrator should have full access to the caller's LP token.
     // Return the new LP token address.
     //
     // XXX Migrator must have allowance access to UniswapV2 LP tokens.
-    // SakeSwap must mint EXACTLY the same amount of SakeSwap LP tokens or
+    // DarkSwap must mint EXACTLY the same amount of DarkSwap LP tokens or
     // else something bad will happen. Traditional UniswapV2 does not
     // do that so be careful!
     function migrate(IERC20 token) external returns (IERC20);
 }
 
-// SakeMaster is the master of Sake. He can make Sake and he is a fair guy.
+// DarkMaster is the master of Darkness. He can make DARK.
 //
 // Note that it's ownable and the owner wields tremendous power. The ownership
-// will be transferred to a governance smart contract once SAKE is sufficiently
+// will be transferred to a governance smart contract once DARK is sufficiently
 // distributed and the community can show to govern itself.
 //
 // Have fun reading it. Hopefully it's bug-free. God bless.
-contract SakeMaster is Ownable {
+contract DarkMaster is Ownable {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
@@ -36,13 +36,13 @@ contract SakeMaster is Ownable {
         uint256 amount; // How many LP tokens the user has provided.
         uint256 rewardDebt; // Reward debt. See explanation below.
         //
-        // We do some fancy math here. Basically, any point in time, the amount of SAKEs
+        // We do some fancy math here. Basically, any point in time, the amount of DARKs
         // entitled to a user but is pending to be distributed is:
         //
-        //   pending reward = (user.amount * pool.accSakePerShare) - user.rewardDebt
+        //   pending reward = (user.amount * pool.accDarkPerShare) - user.rewardDebt
         //
         // Whenever a user deposits or withdraws LP tokens to a pool. Here's what happens:
-        //   1. The pool's `accSakePerShare` (and `lastRewardBlock`) gets updated.
+        //   1. The pool's `accDarkPerShare` (and `lastRewardBlock`) gets updated.
         //   2. User receives the pending reward sent to his/her address.
         //   3. User's `amount` gets updated.
         //   4. User's `rewardDebt` gets updated.
@@ -51,26 +51,26 @@ contract SakeMaster is Ownable {
     // Info of each pool.
     struct PoolInfo {
         IERC20 lpToken; // Address of LP token contract.
-        uint256 allocPoint; // How many allocation points assigned to this pool. SAKEs to distribute per block.
-        uint256 lastRewardBlock; // Last block number that SAKEs distribution occurs.
-        uint256 accSakePerShare; // Accumulated SAKEs per share, times 1e12. See below.
+        uint256 allocPoint; // How many allocation points assigned to this pool. DARKs to distribute per block.
+        uint256 lastRewardBlock; // Last block number that DARKs distribution occurs.
+        uint256 accDarkPerShare; // Accumulated DARKs per share, times 1e12. See below.
     }
 
-    // The SAKE TOKEN!
-    SakeToken public sake;
+    // The DARK TOKEN!
+    DarkToken public dark;
     // Dev address.
     address public devaddr;
     // Block number when beta test period ends.
     uint256 public betaTestEndBlock;
-    // Block number when bonus SAKE period ends.
+    // Block number when bonus DARK period ends.
     uint256 public bonusEndBlock;
-    // Block number when mint SAKE period ends.
+    // Block number when mint DARK period ends.
     uint256 public mintEndBlock;
-    // SAKE tokens created per block.
-    uint256 public sakePerBlock;
-    // Bonus muliplier for 5~20 days sake makers.
+    // DARK tokens created per block.
+    uint256 public darkPerBlock;
+    // Bonus muliplier for 5~20 days Dark makers.
     uint256 public constant BONUSONE_MULTIPLIER = 20;
-    // Bonus muliplier for 20~35 sake makers.
+    // Bonus muliplier for 20~35 Dark makers.
     uint256 public constant BONUSTWO_MULTIPLIER = 2;
     // beta test block num,about 5 days.
     uint256 public constant BETATEST_BLOCKNUM = 35000;
@@ -89,7 +89,7 @@ contract SakeMaster is Ownable {
     mapping(address => uint256) public lpTokenPID;
     // Total allocation poitns. Must be the sum of all allocation points in all pools.
     uint256 public totalAllocPoint = 0;
-    // The block number when SAKE mining starts.
+    // The block number when DARK mining starts.
     uint256 public startBlock;
 
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
@@ -101,14 +101,14 @@ contract SakeMaster is Ownable {
     );
 
     constructor(
-        SakeToken _sake,
+        DarkToken _dark,
         address _devaddr,
-        uint256 _sakePerBlock,
+        uint256 _darkPerBlock,
         uint256 _startBlock
     ) public {
-        sake = _sake;
+        dark = _dark;
         devaddr = _devaddr;
-        sakePerBlock = _sakePerBlock;
+        darkPerBlock = _darkPerBlock;
         startBlock = _startBlock;
         betaTestEndBlock = startBlock.add(BETATEST_BLOCKNUM);
         bonusEndBlock = startBlock.add(BONUS_BLOCKNUM).add(BETATEST_BLOCKNUM);
@@ -125,7 +125,7 @@ contract SakeMaster is Ownable {
         if (_withUpdate) {
             massUpdatePools();
         }
-        require(lpTokenPID[address(_lpToken)] == 0, "SakeMaster:duplicate add.");
+        require(lpTokenPID[address(_lpToken)] == 0, "DarkMaster:duplicate add.");
         uint256 lastRewardBlock = block.number > startBlock ? block.number : startBlock;
         totalAllocPoint = totalAllocPoint.add(_allocPoint);
         poolInfo.push(
@@ -133,13 +133,13 @@ contract SakeMaster is Ownable {
                 lpToken: _lpToken,
                 allocPoint: _allocPoint,
                 lastRewardBlock: lastRewardBlock,
-                accSakePerShare: 0
+                accDarkPerShare: 0
             })
         );
         lpTokenPID[address(_lpToken)] = poolInfo.length;
     }
 
-    // Update the given pool's SAKE allocation point. Can only be called by the owner.
+    // Update the given pool's DARK allocation point. Can only be called by the owner.
     function set(uint256 _pid, uint256 _allocPoint, bool _withUpdate) public onlyOwner {
         if (_withUpdate) {
             massUpdatePools();
@@ -153,9 +153,9 @@ contract SakeMaster is Ownable {
         migrator = _migrator;
     }
 
-    // Handover the saketoken mintage right.
-    function handoverSakeMintage(address newOwner) public onlyOwner {
-        sake.transferOwnership(newOwner);
+    // Handover the Darktoken mintage right.
+    function handoverDarkMintage(address newOwner) public onlyOwner {
+        dark.transferOwnership(newOwner);
     }
 
     // Migrate lp token to another lp contract. Can be called by anyone. We trust that migrator contract is good.
@@ -195,18 +195,18 @@ contract SakeMaster is Ownable {
         } 
     }
 
-    // View function to see pending SAKEs on frontend.
-    function pendingSake(uint256 _pid, address _user) external view returns (uint256) {
+    // View function to see pending DARKs on frontend.
+    function pendingDark(uint256 _pid, address _user) external view returns (uint256) {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][_user];
-        uint256 accSakePerShare = pool.accSakePerShare;
+        uint256 accDarkPerShare = pool.accDarkPerShare;
         uint256 lpSupply = pool.lpToken.balanceOf(address(this));
         if (block.number > pool.lastRewardBlock && lpSupply != 0) {
             uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);
-            uint256 sakeReward = multiplier.mul(sakePerBlock).mul(pool.allocPoint).div(totalAllocPoint);
-            accSakePerShare = accSakePerShare.add(sakeReward.mul(1e12).div(lpSupply));
+            uint256 darkReward = multiplier.mul(darkPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
+            accDarkPerShare = accDarkPerShare.add(darkReward.mul(1e12).div(lpSupply));
         }
-        return user.amount.mul(accSakePerShare).div(1e12).sub(user.rewardDebt);
+        return user.amount.mul(accDarkPerShare).div(1e12).sub(user.rewardDebt);
     }
 
     // Update reward vairables for all pools. Be careful of gas spending!
@@ -233,36 +233,36 @@ contract SakeMaster is Ownable {
             pool.lastRewardBlock = block.number;
             return;
         }
-        uint256 sakeReward = multiplier.mul(sakePerBlock).mul(pool.allocPoint).div(totalAllocPoint);
-        sake.mint(devaddr, sakeReward.div(15));
-        sake.mint(address(this), sakeReward);
-        pool.accSakePerShare = pool.accSakePerShare.add(sakeReward.mul(1e12).div(lpSupply));
+        uint256 darkReward = multiplier.mul(darkPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
+        dark.mint(devaddr, darkReward.div(15));
+        dark.mint(address(this), darkReward);
+        pool.accDarkPerShare = pool.accDarkPerShare.add(darkReward.mul(1e12).div(lpSupply));
         pool.lastRewardBlock = block.number;
     }
 
-    // Deposit LP tokens to SakeMaster for SAKE allocation.
+    // Deposit LP tokens to DarkMaster for DARK allocation.
     function deposit(uint256 _pid, uint256 _amount) public {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
         updatePool(_pid);
-        uint256 pending = user.amount.mul(pool.accSakePerShare).div(1e12).sub(user.rewardDebt);
+        uint256 pending = user.amount.mul(pool.accDarkPerShare).div(1e12).sub(user.rewardDebt);
         user.amount = user.amount.add(_amount);
-        user.rewardDebt = user.amount.mul(pool.accSakePerShare).div(1e12);
-        if (pending > 0) safeSakeTransfer(msg.sender, pending);
+        user.rewardDebt = user.amount.mul(pool.accDarkPerShare).div(1e12);
+        if (pending > 0) safeDarkTransfer(msg.sender, pending);
         pool.lpToken.safeTransferFrom(address(msg.sender), address(this), _amount);
         emit Deposit(msg.sender, _pid, _amount);
     }
 
-    // Withdraw LP tokens from SakeMaster.
+    // Withdraw LP tokens from DarkMaster.
     function withdraw(uint256 _pid, uint256 _amount) public {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
         require(user.amount >= _amount, "withdraw: not good");
         updatePool(_pid);
-        uint256 pending = user.amount.mul(pool.accSakePerShare).div(1e12).sub(user.rewardDebt);
+        uint256 pending = user.amount.mul(pool.accDarkPerShare).div(1e12).sub(user.rewardDebt);
         user.amount = user.amount.sub(_amount);
-        user.rewardDebt = user.amount.mul(pool.accSakePerShare).div(1e12);
-        safeSakeTransfer(msg.sender, pending);
+        user.rewardDebt = user.amount.mul(pool.accDarkPerShare).div(1e12);
+        safeDarkTransfer(msg.sender, pending);
         pool.lpToken.safeTransfer(address(msg.sender), _amount);
         emit Withdraw(msg.sender, _pid, _amount);
     }
@@ -279,13 +279,13 @@ contract SakeMaster is Ownable {
         emit EmergencyWithdraw(msg.sender, _pid, _amount);
     }
 
-    // Safe sake transfer function, just in case if rounding error causes pool to not have enough SAKEs.
-    function safeSakeTransfer(address _to, uint256 _amount) internal {
-        uint256 sakeBal = sake.balanceOf(address(this));
-        if (_amount > sakeBal) {
-            sake.transfer(_to, sakeBal);
+    // Safe DARK transfer function, just in case if rounding error causes pool to not have enough DARKs.
+    function safeDarkTransfer(address _to, uint256 _amount) internal {
+        uint256 darkBal = dark.balanceOf(address(this));
+        if (_amount > darkBal) {
+            dark.transfer(_to, darkBal);
         } else {
-            sake.transfer(_to, _amount);
+            dark.transfer(_to, _amount);
         }
     }
 
