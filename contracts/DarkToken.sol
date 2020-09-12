@@ -6,8 +6,8 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 
-// SakeToken with Governance.
-contract SakeToken is Context, IERC20, Ownable {
+// DarkToken with Governance.
+contract DarkToken is Context, IERC20, Ownable {
     using SafeMath for uint256;
     using Address for address;
 
@@ -17,8 +17,8 @@ contract SakeToken is Context, IERC20, Ownable {
 
     uint256 private _totalSupply;
 
-    string private _name = "SakeToken";
-    string private _symbol = "SAKE";
+    string private _name = "DarkToken";
+    string private _symbol = "DARK";
     uint8 private _decimals = 18;
 
     /**
@@ -268,7 +268,7 @@ contract SakeToken is Context, IERC20, Ownable {
      */
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual { }
 
-    /// @notice Creates `_amount` token to `_to`. Must only be called by the owner (SakeMaster).
+    /// @notice Creates `_amount` token to `_to`. Must only be called by the owner (DarkMaster).
     function mint(address _to, uint256 _amount) public onlyOwner {
         _mint(_to, _amount);
         _moveDelegates(address(0), _delegates[_to], _amount);
@@ -376,9 +376,9 @@ contract SakeToken is Context, IERC20, Ownable {
         );
 
         address signatory = ecrecover(digest, v, r, s);
-        require(signatory != address(0), "SAKE::delegateBySig: invalid signature");
-        require(nonce == nonces[signatory]++, "SAKE::delegateBySig: invalid nonce");
-        require(now <= expiry, "SAKE::delegateBySig: signature expired");
+        require(signatory != address(0), "DARK::delegateBySig: invalid signature");
+        require(nonce == nonces[signatory]++, "DARK::delegateBySig: invalid nonce");
+        require(now <= expiry, "DARK::delegateBySig: signature expired");
         return _delegate(signatory, delegatee);
     }
 
@@ -408,7 +408,7 @@ contract SakeToken is Context, IERC20, Ownable {
         view
         returns (uint256)
     {
-        require(blockNumber < block.number, "SAKE::getPriorVotes: not yet determined");
+        require(blockNumber < block.number, "DARK::getPriorVotes: not yet determined");
 
         uint32 nCheckpoints = numCheckpoints[account];
         if (nCheckpoints == 0) {
@@ -445,7 +445,7 @@ contract SakeToken is Context, IERC20, Ownable {
         internal
     {
         address currentDelegate = _delegates[delegator];
-        uint256 delegatorBalance = balanceOf(delegator); // balance of underlying SAKEs (not scaled);
+        uint256 delegatorBalance = balanceOf(delegator); // balance of underlying DARKs (not scaled);
         _delegates[delegator] = delegatee;
 
         emit DelegateChanged(delegator, currentDelegate, delegatee);
@@ -481,7 +481,7 @@ contract SakeToken is Context, IERC20, Ownable {
     )
         internal
     {
-        uint32 blockNumber = safe32(block.number, "SAKE::_writeCheckpoint: block number exceeds 32 bits");
+        uint32 blockNumber = safe32(block.number, "DARK::_writeCheckpoint: block number exceeds 32 bits");
 
         if (nCheckpoints > 0 && checkpoints[delegatee][nCheckpoints - 1].fromBlock == blockNumber) {
             checkpoints[delegatee][nCheckpoints - 1].votes = newVotes;
