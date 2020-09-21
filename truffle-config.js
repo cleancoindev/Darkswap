@@ -55,12 +55,13 @@ module.exports = {
         process.env.HDWALLET_MNEMONIC,
         process.env.INFURA_PROVIDER_URL_MAINNET,
         0,
-        3
+        1
       ),
       skipDryRun: true,
       network_id: 1,
-      gas: 7000000,
-      gasPrice: 3.01 * 1000000000
+      gas: 8000000,
+      from: process.env.DEPLOYER_ACCOUNT,
+      gasPrice: 80000000000
     },
 
     kovan: {

@@ -1,0 +1,21 @@
+{
+  "contracts": {},
+  "solidityLibs": {},
+  "proxies": {
+    "Darkswap/Migrations": [
+      {
+        "address": "0x17ff6C7F61c197014f7cfe848542613E1677aD63",
+        "kind": "NonProxy",
+        "bytecodeHash": "da5b5e110b11b9aa8ea9b1d6dbdba06056a4ed986dd0fec134c306569f9923f1"
+      }
+    ],
+    "Darkswap/DarkToken": [
+      {
+        "address": "0x3108ccFd96816F9E663baA0E8c5951D229E8C6da",
+        "kind": "NonProxy",
+        "bytecodeHash": "a71d3e808b2dc654491b53b38d4328eb855692ead86ce1d2d36f65903b69c1fa"
+      }
+    ]
+  },
+  "manifestVersion": "2.2"
+}
