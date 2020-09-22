@@ -76,8 +76,8 @@ contract DarkMaster is Ownable {
     uint256 public constant BETATEST_BLOCKNUM = 28000;
     // Bonus block num,about 3 days.
     uint256 public constant BONUS_BLOCKNUM = 21000;
-    // mint end block num,about 10 days.
-    uint256 public constant MINTEND_BLOCKNUM = 70000;
+    // mint end block num,about 6 days.
+    uint256 public constant MINTEND_BLOCKNUM = 42000;
     // The migrator contract. It has a lot of power. Can only be set through governance (owner).
     IMigratorChef public migrator;
 
