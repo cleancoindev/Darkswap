@@ -53,7 +53,7 @@ contract('DarkMaster', ([alice, bob, carol, dev, minter]) => {
         });
 
         it('should give out DARKs only after farming time', async () => {
-            // 100 per block farming rate starting at block 100 with bonus until block 1000
+            // 1 per block farming rate starting at block 100 with bonus until block 1000
             this.darklord = await DarkMaster.new(this.dark.address, dev, '50', '100', { from: alice });
             await this.dark.transferOwnership(this.darklord.address, { from: alice });
             await this.darklord.add('100', this.lp.address, true);
@@ -74,8 +74,8 @@ contract('DarkMaster', ([alice, bob, carol, dev, minter]) => {
             await time.advanceBlockTo('104');
             await this.darklord.deposit(0, '0', { from: bob }); // block 105
             assert.equal((await this.dark.balanceOf(bob)).valueOf(), '250');
-            assert.equal((await this.dark.balanceOf(dev)).valueOf(), '16');
-            assert.equal((await this.dark.totalSupply()).valueOf(), '266');
+            assert.equal((await this.dark.balanceOf(dev)).valueOf(), '0');
+            assert.equal((await this.dark.totalSupply()).valueOf(), '250');
         });
 
         it('should not distribute DARKs if no one deposit', async () => {
@@ -96,9 +96,9 @@ contract('DarkMaster', ([alice, bob, carol, dev, minter]) => {
             assert.equal((await this.lp.balanceOf(bob)).valueOf(), '990');
             await time.advanceBlockTo('219');
             await this.darklord.withdraw(0, '10', { from: bob }); // block 220
-            assert.equal((await this.dark.totalSupply()).valueOf(), '533');
+            assert.equal((await this.dark.totalSupply()).valueOf(), '500');
             assert.equal((await this.dark.balanceOf(bob)).valueOf(), '500');
-            assert.equal((await this.dark.balanceOf(dev)).valueOf(), '33');
+            assert.equal((await this.dark.balanceOf(dev)).valueOf(), '0');
             assert.equal((await this.lp.balanceOf(bob)).valueOf(), '1000');
         });
 
@@ -124,22 +124,22 @@ contract('DarkMaster', ([alice, bob, carol, dev, minter]) => {
             //   DarkMaster should have the remaining: 500 - 283 = 217
             await time.advanceBlockTo('319')
             await this.darklord.deposit(0, '10', { from: alice });
-            assert.equal((await this.dark.totalSupply()).valueOf(), '532');
+            assert.equal((await this.dark.totalSupply()).valueOf(), '500');
             assert.equal((await this.dark.balanceOf(alice)).valueOf(), '283');
             assert.equal((await this.dark.balanceOf(bob)).valueOf(), '0');
             assert.equal((await this.dark.balanceOf(carol)).valueOf(), '0');
             assert.equal((await this.dark.balanceOf(this.darklord.address)).valueOf(), '217');
-            assert.equal((await this.dark.balanceOf(dev)).valueOf(), '32');
+            assert.equal((await this.dark.balanceOf(dev)).valueOf(), '0');
             // Bob withdraws 5 LPs at block 330. At this point:
             //   Bob should have: 4*2/3*50 + 2*2/6*50 + 10*2/7*50 = 309
             await time.advanceBlockTo('329')
             await this.darklord.withdraw(0, '5', { from: bob });
-            assert.equal((await this.dark.totalSupply()).valueOf(), '1065');
+            assert.equal((await this.dark.totalSupply()).valueOf(), '1000');
             assert.equal((await this.dark.balanceOf(alice)).valueOf(), '283');
             assert.equal((await this.dark.balanceOf(bob)).valueOf(), '309');
             assert.equal((await this.dark.balanceOf(carol)).valueOf(), '0');
             assert.equal((await this.dark.balanceOf(this.darklord.address)).valueOf(), '408');
-            assert.equal((await this.dark.balanceOf(dev)).valueOf(), '65');
+            assert.equal((await this.dark.balanceOf(dev)).valueOf(), '0');
             // Alice withdraws 20 LPs at block 340.
             // Bob withdraws 15 LPs at block 350.
             // Carol withdraws 30 LPs at block 360.
@@ -149,8 +149,8 @@ contract('DarkMaster', ([alice, bob, carol, dev, minter]) => {
             await this.darklord.withdraw(0, '15', { from: bob });
             await time.advanceBlockTo('359')
             await this.darklord.withdraw(0, '30', { from: carol });
-            assert.equal((await this.dark.totalSupply()).valueOf(), '2664');
-            assert.equal((await this.dark.balanceOf(dev)).valueOf(), '164');
+            assert.equal((await this.dark.totalSupply()).valueOf(), '2500');
+            assert.equal((await this.dark.balanceOf(dev)).valueOf(), '0');
             // Alice should have: 283 + 10*2/7*50 + 10*2/6.5*50 = 580
             assert.equal((await this.dark.balanceOf(alice)).valueOf(), '580');
             // Bob should have: 309 + 10*1.5/6.5 * 50 + 10*1.5/4.5*50 = 591
@@ -210,14 +210,9 @@ contract('DarkMaster', ([alice, bob, carol, dev, minter]) => {
 
         it('getMultiplier', async () => {
             this.dark = await DarkMaster.new(this.dark.address, dev, '50', '0', { from: alice });
-            assert.equal((await this.dark.getMultiplier(0, 35000)).valueOf(), '35000');
-            assert.equal((await this.dark.getMultiplier(10000, 135000)).valueOf(), '2025000');
-            assert.equal((await this.dark.getMultiplier(35000, 135000)).valueOf(), '2000000');
-            assert.equal((await this.dark.getMultiplier(10000, 235000)).valueOf(), '2225000');
-            assert.equal((await this.dark.getMultiplier(45000, 235000)).valueOf(), '2000000');
-            assert.equal((await this.dark.getMultiplier(145000, 235000)).valueOf(), '180000');
-            assert.equal((await this.dark.getMultiplier(145000, 235001)).valueOf(), '180000');
-            assert.equal((await this.dark.getMultiplier(235001, 235002)).valueOf(), '0');
+            assert.equal((await this.dark.getMultiplier(0, 28000)).valueOf(), '28000');
+            assert.equal((await this.dark.getMultiplier(28000, 28001)).valueOf(), '4');
+            assert.equal((await this.dark.getMultiplier(70001, 70005)).valueOf(), '0');
         });
 
         it('add lp token', async () => {
