@@ -68,16 +68,16 @@ contract DarkMaster is Ownable {
     uint256 public mintEndBlock;
     // DARK tokens created per block.
     uint256 public darkPerBlock;
-    // Bonus muliplier for 5~20 days Dark makers.
-    uint256 public constant BONUSONE_MULTIPLIER = 20;
-    // Bonus muliplier for 20~35 Dark makers.
-    uint256 public constant BONUSTWO_MULTIPLIER = 2;
-    // beta test block num,about 5 days.
-    uint256 public constant BETATEST_BLOCKNUM = 35000;
-    // Bonus block num,about 15 days.
-    uint256 public constant BONUS_BLOCKNUM = 100000;
-    // mint end block num,about 30 days.
-    uint256 public constant MINTEND_BLOCKNUM = 200000;
+    // Bonus muliplier for 4~7 days Dark makers.
+    uint256 public constant BONUSONE_MULTIPLIER = 4;
+    // Bonus muliplier for 7~10 days Dark makers.
+    uint256 public constant BONUSTWO_MULTIPLIER = 4;
+    // beta test block num,about 4 days.
+    uint256 public constant BETATEST_BLOCKNUM = 28000;
+    // Bonus block num,about 3 days.
+    uint256 public constant BONUS_BLOCKNUM = 21000;
+    // mint end block num,about 10 days.
+    uint256 public constant MINTEND_BLOCKNUM = 70000;
     // The migrator contract. It has a lot of power. Can only be set through governance (owner).
     IMigratorChef public migrator;
 
