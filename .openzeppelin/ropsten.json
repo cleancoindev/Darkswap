@@ -15,6 +15,13 @@
         "kind": "NonProxy",
         "bytecodeHash": "da5b5e110b11b9aa8ea9b1d6dbdba06056a4ed986dd0fec134c306569f9923f1"
       }
+    ],
+    "Darkswap/DarkMaster": [
+      {
+        "address": "0xCDB7E724B31E01A19d6b7Be2e875E3c8F75c03C5",
+        "kind": "NonProxy",
+        "bytecodeHash": "1ea60a0df8473aebab18e97f74cc34b76d046efbd082abd1fa43781d4b808c2f"
+      }
     ]
   },
   "manifestVersion": "2.2"
