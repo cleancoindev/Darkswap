@@ -4,4 +4,4 @@ Darkening. More details coming soon.
 
 ## License
 
-MIT
+None
