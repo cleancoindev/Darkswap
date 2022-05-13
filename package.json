@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "^3.1.0",
-    "dotenv": "^8.2.0"
+    "dotenv": "^8.6.0"
   },
   "devDependencies": {
     "@openzeppelin/test-helpers": "^0.5.6",
